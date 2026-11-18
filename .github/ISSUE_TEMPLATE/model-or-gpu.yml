@@ -1,0 +1,34 @@
+name: Add a model or GPU
+description: Request a model, GPU or accelerator that's missing from the catalog
+title: "Catalog: "
+labels: ["catalog"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What should we add?
+      options:
+        - LLM
+        - RAG / agent model (embedding, reranker, parser, speech, guardrail)
+        - GPU or accelerator
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      placeholder: e.g. Qwen3-235B-A22B, or NVIDIA RTX PRO 6000 Blackwell
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Link to the model card or datasheet
+      description: For models, the Hugging Face page with config.json. For GPUs, the vendor datasheet.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?
+      description: Precisions or runtimes you care about, or the setup you want to size with it.

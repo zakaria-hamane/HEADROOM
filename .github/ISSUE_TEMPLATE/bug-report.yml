@@ -1,0 +1,31 @@
+name: Bug report
+description: Something is broken or a number looks wrong
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. If a result looks wrong, the setup code is the fastest way for us to reproduce it: in the planner, use **Copy summary** or **⋯ → Copy setup code** and paste it below.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup code or summary
+      description: Paste the setup code or summary from the planner, if the bug is about a result.
+      render: text
+  - type: textarea
+    id: measured
+    attributes:
+      label: Real measurements (optional)
+      description: If you ran this setup on real hardware, what did you measure (memory, tokens/s, time to first token) and with which runtime and version?
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Chrome 131 on macOS 15

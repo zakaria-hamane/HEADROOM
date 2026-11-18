@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Type-check, lint, test and build
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type-check, lint and engine parity tests
+        run: npm run check
+
+      - name: Production build
+        run: npm run build
+        env:
+          # Placeholder so the build doesn't warn about a missing secret. Not used by any deployment.
+          BETTER_AUTH_SECRET: ci-placeholder-secret-not-used-by-any-deployment
