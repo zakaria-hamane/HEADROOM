@@ -1,5 +1,6 @@
 import { memoryStatus } from "@/components/ui/misc";
 import { StatusPill } from "@/components/ui/status";
+import { TASKS } from "@/lib/engine";
 import { runInference } from "@/lib/planner/compute";
 import { defaultState } from "@/lib/planner/defaults";
 import { gb, gpuLabel, money, nf, spd, tm } from "@/lib/planner/format";
@@ -18,9 +19,12 @@ export function HeroPreview() {
     { name: "RAG & agent models", value: r.st.gpuMem },
   ].filter((p) => p.value > 0.005);
   const cap = Math.max(r.totalRep, r.used);
+  const stackRows = r.st.rows;
   const tiles: [string, string, string][] = [
     ["Speed per user", `${spd(r.speed)} tok/s`, `${nf(1000 / r.speed, 0)} ms per token`],
-    ["First word", tm(r.ttftK), `${r.k} prompts at once`],
+    r.st.retrieval
+      ? ["Question → first word", tm(r.ttftK + r.st.retrieval), `retrieval included · ${r.k} at once`]
+      : ["First word", tm(r.ttftK), `${r.k} prompts at once`],
     ["Total output", `${nf(r.thr, 0)} tok/s`, `${nf(r.seqs, 0)} answers at once`],
     ["Per 1M output tokens", money(r.perMTok), `${money(r.costHr)} per hour`],
   ];
@@ -30,7 +34,9 @@ export function HeroPreview() {
       <div className="rounded-3xl border border-line-2 bg-panel/90 p-5 shadow-pop backdrop-blur sm:p-6">
         <div className="flex items-center justify-between gap-3 border-b border-line pb-3.5">
           <div className="min-w-0">
-            <p className="truncate text-[13px] font-semibold">{r.model.name} · INT8</p>
+            <p className="truncate text-[13px] font-semibold">
+              {r.model.name} · INT8{stackRows.length ? ` + ${stackRows.length} RAG models` : ""}
+            </p>
             <p className="truncate text-xs text-muted">
               {nf(r.users, 0)} users · {nf(r.S, 0)}-token context · {r.T.G}× {gpuLabel(r.gpu)}
             </p>
@@ -78,6 +84,22 @@ export function HeroPreview() {
             </li>
           ))}
         </ul>
+        {stackRows.length ? (
+          <>
+            <p className="mt-4 mb-2 font-display text-[12px] font-bold tracking-[0.14em] text-muted uppercase">Same GPUs, whole stack</p>
+            <ul className="grid gap-1.5 text-xs">
+              {stackRows.map((x) => (
+                <li key={x.c.id} className="flex items-center gap-2">
+                  <span className="rounded-full bg-blue/14 px-2 py-0.5 text-[10px] font-bold tracking-[0.06em] whitespace-nowrap text-blue uppercase">
+                    {(TASKS[x.c.task] || { l: x.c.task }).l}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate">{x.c.name}</span>
+                  <b className="font-semibold tabular-nums">{gb(x.gpuMem)}</b>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
       </div>
     </div>
   );

@@ -2,10 +2,11 @@ const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 
 export const siteConfig = {
   name: "Headroom",
-  tagline: "LLM GPU planner",
+  tagline: "GPU planner for agentic RAG",
   description:
-    "Plan GPU memory, tokens per second, time to first token, GPU count and cost for LLM inference and fine-tuning, " +
-    "across 138 open models, 93 GPUs and 175 RAG & agent models.",
+    "Size the GPUs for your whole agentic RAG stack, not just the LLM: embedders, rerankers, document parsers, " +
+    "speech-to-text, text-to-speech and guardrails on the same cards. Memory, tokens per second, question-to-first-word time, " +
+    "GPU count and cost across 138 LLMs, 175 RAG & agent models and 93 GPUs.",
   url:
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.BETTER_AUTH_URL ||

@@ -5,7 +5,7 @@ import { WorkspaceSkeleton } from "@/components/planner/workspace-skeleton";
 
 export const metadata: Metadata = {
   title: "Planner",
-  description: "Size GPU memory, speed, GPU count and cost for an LLM deployment or fine-tuning run. No account needed.",
+  description: "Size GPU memory, speed, GPU count and cost for an LLM and its RAG and agent stack (embedders, rerankers, OCR, speech, guardrails), or a fine-tuning run. No account needed.",
 };
 
 export default function PlannerPage() {

@@ -17,19 +17,21 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { HeroPreview } from "@/components/marketing/hero-preview";
 import { TemplateGallery } from "@/components/dashboard/template-gallery";
+import { StatusPill } from "@/components/ui/status";
 import { CATALOG_STATS, GPU_INDEX } from "@/lib/catalog";
-import { ENGINES, WQ } from "@/lib/engine";
+import { ENGINES, TASKS, WQ } from "@/lib/engine";
 import { runInference } from "@/lib/planner/compute";
 import { defaultState } from "@/lib/planner/defaults";
-import { gpuLabel, money, spd, tm } from "@/lib/planner/format";
+import { gb, gpuLabel, money, ms, nf, pc, spd, tm } from "@/lib/planner/format";
+import { templateState } from "@/lib/planner/templates";
 import { siteConfig } from "@/lib/site";
 
 const FEATURES = [
-  { icon: Layers, title: "Memory, line by line", text: "Weights, KV cache per user, runtime, CUDA graphs, activations and companion models, against what each GPU can really hold." },
-  { icon: Gauge, title: "Speed and first word", text: "Tokens per second per user from memory bandwidth, compute and GPU-to-GPU traffic, and time to first token under a burst of prompts." },
+  { icon: Boxes, title: "The whole RAG & agent stack", text: `The LLM plus ${CATALOG_STATS.companions} embedding, reranking, OCR, speech-to-text, text-to-speech and guardrail models, on the same GPUs, on the CPU or as an API.` },
+  { icon: Layers, title: "Memory, line by line", text: "Weights, KV cache per user, runtime, CUDA graphs, activations and every model in the stack, against what each GPU can really hold." },
+  { icon: Gauge, title: "Speed and first word", text: "Tokens per second per user, and the time from question to first word: embedding, vector search, reranking, guardrails and the LLM's first token, under a burst." },
   { icon: Server, title: "How many GPUs", text: "The smallest server that fits, or a cluster with tensor and pipeline parallelism over NVLink, InfiniBand or Ethernet." },
   { icon: ChartColumn, title: "Every GPU, side by side", text: `The same workload on all ${CATALOG_STATS.gpus} GPUs: count needed, speed, first word, cost per hour and per million tokens.` },
-  { icon: Boxes, title: "RAG and agent stacks", text: `${CATALOG_STATS.companions} embedding, reranking, OCR, speech and guardrail models sharing the GPUs, with retrieval latency per question.` },
   { icon: FlaskConical, title: "Fine-tuning", text: "Full, LoRA and QLoRA with optimizer states, ZeRO / FSDP sharding, checkpointing, training time and cost." },
   { icon: HardDrive, title: "Offloading", text: "Move layers or the KV cache to RAM or NVMe, run them on the CPU or stream over PCIe, and see what it costs in speed." },
   { icon: Coins, title: "Cost and energy", text: "Cloud price or your own, electricity, power draw, cost per million tokens, and the CPU and RAM the server needs." },
@@ -47,6 +49,10 @@ const FAQ = [
   {
     q: "Does it handle MoE, MLA, sliding windows and hybrid models?",
     a: "Yes. Mixture-of-experts counts the experts each step actually touches, MLA models store their latent KV, sliding-window layers keep only their window, linear-attention and Mamba layers keep a fixed state, and quantized KV caches are supported per runtime.",
+  },
+  {
+    q: "Which models besides the LLM can it size?",
+    a: `${CATALOG_STATS.companions} RAG and agent models in 9 types: embedders, rerankers, document parsers and OCR, speech-to-text, text-to-speech, guardrails, vision, PII detection and routers. Each one gets its memory and its speed (query time, pages per hour, × real time for live audio), on the GPU next to the LLM, on the CPU, or as a hosted API with its price.`,
   },
   {
     q: "Do I need an account?",
@@ -71,6 +77,85 @@ function seventyB() {
     });
 }
 
+/** The "Voice agent" template, computed by the same engine as the planner. */
+function voiceAgent() {
+  const s = templateState("voice-agent");
+  return s ? runInference(s) : null;
+}
+
+const PIPELINE = ["Speech-to-text", "Guardrail", "Embedder", "Vector search", "Reranker", "LLM", "Text-to-speech"];
+
+function StackSection() {
+  const r = voiceAgent();
+  if (!r) return null;
+  const st = r.st;
+  const parts: string[] = [];
+  if (st.emb) parts.push(`embed ${ms(st.emb)}`);
+  if (st.search) parts.push(`search ${ms(st.search)}`);
+  if (st.rr) parts.push(`rerank ${ms(st.rr)}`);
+  if (st.guard) parts.push(`guard ${ms(st.guard)}`);
+  return (
+    <section className="mx-auto max-w-[1240px] px-4 pb-20 sm:px-6">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
+        <div>
+          <p className="font-display text-sm font-bold tracking-[0.16em] text-orange uppercase">The whole stack</p>
+          <h2 className="mt-2 font-display text-[36px] leading-none font-bold uppercase sm:text-[44px]">One GPU budget for every model</h2>
+          <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted">
+            An assistant is never just an LLM. It transcribes, checks, embeds, searches, reranks, answers and speaks, and every one of those models takes memory and
+            compute from the same GPUs. Headroom sizes them together.
+          </p>
+          <ol className="mt-6 flex flex-wrap items-center gap-1.5 text-[12.5px] font-semibold">
+            {PIPELINE.map((step, i) => (
+              <li key={step} className="flex items-center gap-1.5">
+                <span className={i === 5 ? "primary-gradient rounded-full px-3 py-1 text-white" : "rounded-full border border-line-2 bg-panel px-3 py-1"}>{step}</span>
+                {i < PIPELINE.length - 1 ? <ArrowRight className="size-3.5 text-faint" aria-hidden /> : null}
+              </li>
+            ))}
+          </ol>
+          <p className="mt-3 text-[13px] text-faint">Behind it: document parsing, OCR and indexing for your knowledge base.</p>
+        </div>
+        <div className="rounded-2xl border border-line bg-panel p-5 shadow-card">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-[15px] font-semibold">Example: a voice agent for {nf(r.users, 0)} users</h3>
+              <p className="mt-0.5 text-[13px] text-muted">
+                {r.model.name} with {st.rows.map((x) => x.c.name).join(", ")} on {r.T.G}× {gpuLabel(r.gpu)}
+              </p>
+            </div>
+            <StatusPill ratio={r.ratio} size="sm" />
+          </div>
+          <p className="mt-3 text-[13px] text-muted">
+            <b className="text-[22px] font-semibold text-fg">{nf(r.ratio * 100, 0)}%</b> of usable VRAM: {nf(r.used, 1)} of {nf(r.usableRep, 1)} GB, of which{" "}
+            <b className="text-fg">{gb(st.gpuMem)}</b> for the RAG and voice models
+          </p>
+          <ul className="mt-4 grid gap-2">
+            {st.rows.map((x) => (
+              <li key={x.c.id} className="rounded-xl border border-line bg-panel-2 px-3.5 py-2.5">
+                <div className="flex items-center gap-2 text-[13px]">
+                  <span className="rounded-full bg-blue/14 px-2 py-0.5 text-[10px] font-bold tracking-[0.06em] whitespace-nowrap text-blue uppercase">
+                    {(TASKS[x.c.task] || { l: x.c.task }).l}
+                  </span>
+                  <b className="min-w-0 flex-1 truncate">{x.c.name}</b>
+                  <span className="font-mono tabular-nums">{gb(x.gpuMem)}</span>
+                </div>
+                <p className="mt-1 text-xs text-muted">{x.metrics.join(" · ")}</p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 font-mono text-xs leading-relaxed text-muted">
+            Question → first word: {[...parts, `LLM ${tm(r.ttft1)}`].join(" + ")} = <b className="text-fg">{tm(r.ttft1 + st.retrieval)}</b>
+            <br />
+            {spd(r.speed)} tok/s per user · {money(r.perMTok)} per 1M tokens · the stack uses {pc(st.load, st.load < 0.1 ? 1 : 0)} of the GPUs&apos; compute
+          </p>
+          <Link href="/planner?template=voice-agent" className="mt-4 inline-flex items-center gap-1 text-[13px] font-semibold text-blue">
+            Open this in the planner <ArrowRight className="size-4" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   const rows = seventyB();
   return (
@@ -81,14 +166,14 @@ export default function LandingPage() {
         <div className="relative mx-auto grid max-w-[1240px] items-center gap-12 px-4 pt-14 pb-16 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:pt-20 lg:pb-24">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-line-2 bg-panel/70 px-3 py-1 text-xs font-semibold text-muted">
-              <span className="size-1.5 rounded-full bg-orange" /> For ML platform and infrastructure teams
+              <span className="size-1.5 rounded-full bg-orange" /> For teams shipping RAG, voice and agent apps
             </p>
             <h1 className="mt-5 font-display text-[44px] leading-[0.95] font-bold tracking-[0.005em] uppercase sm:text-[60px] lg:text-[68px]">
               Know your GPU <span className="text-gradient">headroom</span> before you buy.
             </h1>
             <p className="mt-5 max-w-[56ch] text-[16px] leading-relaxed text-muted">
-              GPU memory, tokens per second, time to first token, how many GPUs and the cost per million tokens, for inference and fine-tuning. {CATALOG_STATS.models} open
-              models, {CATALOG_STATS.gpus} GPUs, real architecture math.
+              Size the GPUs for your whole agentic RAG stack, not just the LLM: embedders, rerankers, document parsers, speech-to-text, text-to-speech and guardrails
+              share the same cards. Memory, tokens per second, question-to-first-word time, GPU count and cost per million tokens, from real architecture math.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/planner" className={buttonVariants({ variant: "primary", size: "lg" })}>
@@ -108,9 +193,9 @@ export default function LandingPage() {
       <section className="border-y border-line bg-panel/60">
         <dl className="mx-auto grid max-w-[1240px] grid-cols-2 gap-y-6 px-4 py-8 sm:grid-cols-5 sm:px-6">
           {[
-            [CATALOG_STATS.models, "open models"],
-            [CATALOG_STATS.gpus, "GPUs & accelerators"],
+            [CATALOG_STATS.models, "LLMs"],
             [CATALOG_STATS.companions, "RAG & agent models"],
+            [CATALOG_STATS.gpus, "GPUs & accelerators"],
             [Object.keys(WQ).length, "weight formats"],
             [Object.keys(ENGINES).length, "inference runtimes"],
           ].map(([n, label]) => (
@@ -139,6 +224,8 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <StackSection />
+
       {/* how it works + example */}
       <section className="border-y border-line bg-panel/50">
         <div className="mx-auto grid max-w-[1240px] gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
@@ -147,9 +234,9 @@ export default function LandingPage() {
             <h2 className="mt-2 font-display text-[36px] leading-none font-bold uppercase sm:text-[44px]">Three choices, one answer</h2>
             <ol className="mt-8 grid gap-6">
               {[
-                ["Pick the model", "Any of the catalog's models, or your own architecture: layers, heads, experts, sliding windows."],
-                ["Pick the hardware", "A GPU, a server or a cluster. Auto mode finds the smallest GPU count that fits."],
-                ["Describe the load", "Concurrent users, context length, answer length, RAG models. Every number updates as you type."],
+                ["Pick the models", "An LLM from the catalog or your own architecture, plus the embedders, rerankers, parsers, speech and guardrail models around it."],
+                ["Pick the hardware", "A GPU, a server or a cluster. Auto mode finds the smallest GPU count that fits the whole stack."],
+                ["Describe the load", "Concurrent users, context length, questions per minute, live audio streams, pages to parse. Every number updates as you type."],
               ].map(([t, d], i) => (
                 <li key={t} className="flex gap-4">
                   <span className="primary-gradient grid size-9 flex-none place-items-center rounded-xl font-semibold text-white">{i + 1}</span>

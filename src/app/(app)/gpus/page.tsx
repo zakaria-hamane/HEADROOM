@@ -4,7 +4,7 @@ import { CATALOG_STATS } from "@/lib/catalog";
 import { gpuRows } from "@/lib/catalog-insights";
 
 export const metadata: Metadata = {
-  title: "GPU catalog for LLMs",
+  title: "GPU catalog for LLMs and RAG stacks",
   description: `Memory, bandwidth, TFLOPS, power and cloud price for ${CATALOG_STATS.gpus} GPUs and accelerators, from H100 and B200 to RTX 5090 and Apple M4.`,
 };
 

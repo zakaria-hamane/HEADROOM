@@ -10,7 +10,7 @@ import { sanitizeState } from "@/lib/planner/state";
 
 export const metadata: Metadata = {
   title: "Shared plan",
-  description: "A read-only LLM infrastructure plan: GPU memory, speed, GPU count and cost.",
+  description: "A read-only GPU plan for an LLM and its RAG and agent stack: memory, speed, GPU count and cost.",
   robots: { index: false },
 };
 

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { CATALOG_STATS } from "@/lib/catalog";
 import { siteConfig } from "@/lib/site";
 
-export const alt = `${siteConfig.name}: LLM GPU planner`;
+export const alt = `${siteConfig.name}: ${siteConfig.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -51,12 +51,12 @@ export default function OpenGraphImage() {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div style={{ fontSize: 76, fontWeight: 700, lineHeight: 1.02, maxWidth: 1000 }}>Know your GPU headroom before you buy.</div>
-          <div style={{ fontSize: 30, color: "#a0a8ce", maxWidth: 1000 }}>GPU memory, tokens per second, first word, GPU count and cost per million tokens.</div>
+          <div style={{ fontSize: 30, color: "#a0a8ce", maxWidth: 1000 }}>The LLM plus its embedders, rerankers, OCR, speech and guardrail models: memory, speed and cost on one GPU budget.</div>
         </div>
         <div style={{ display: "flex", gap: 40, fontSize: 28, color: "#a0a8ce" }}>
-          <span>{CATALOG_STATS.models} models</span>
-          <span>{CATALOG_STATS.gpus} GPUs</span>
+          <span>{CATALOG_STATS.models} LLMs</span>
           <span>{CATALOG_STATS.companions} RAG &amp; agent models</span>
+          <span>{CATALOG_STATS.gpus} GPUs</span>
         </div>
       </div>
     ),
