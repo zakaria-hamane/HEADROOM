@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="docs/banner.svg" alt="Headroom: know your GPU headroom before you buy" width="100%">
+<img src="docs/banner.svg" alt="Headroom: know your GPU headroom before you buy, for the whole agentic RAG stack" width="100%">
 
-### Plan GPU memory, tokens/s, first-token latency, GPU count and cost for any open LLM, before you buy a single card.
+### Size the GPUs for your whole agentic RAG stack, not just the LLM: embedders, rerankers, document parsers, speech-to-text, text-to-speech and guardrails, all sharing the same cards.
 
 <p>
   <a href="https://nextjs.org"><img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"></a>
@@ -19,16 +19,23 @@
 </p>
 
 <p>
-  <img alt="138 models" src="https://img.shields.io/badge/models-138-2F6BFF?style=flat-square">
-  <img alt="93 GPUs" src="https://img.shields.io/badge/GPUs_%26_accelerators-93-7B61FF?style=flat-square">
-  <img alt="175 RAG and agent models" src="https://img.shields.io/badge/RAG_%26_agent_models-175-FF7E51?style=flat-square">
-  <img alt="20 weight formats" src="https://img.shields.io/badge/weight_formats-20-38C9E0?style=flat-square">
-  <img alt="7 inference runtimes" src="https://img.shields.io/badge/runtimes-7-0CA30C?style=flat-square">
+  <img alt="138 LLMs" src="https://img.shields.io/badge/LLMs-138-2F6BFF?style=flat-square">
+  <img alt="40 embedders" src="https://img.shields.io/badge/embedders-40-4C6BFF?style=flat-square">
+  <img alt="22 rerankers" src="https://img.shields.io/badge/rerankers-22-6366F1?style=flat-square">
+  <img alt="25 speech-to-text models" src="https://img.shields.io/badge/speech--to--text-25-7B61FF?style=flat-square">
+  <img alt="16 text-to-speech models" src="https://img.shields.io/badge/text--to--speech-16-9B5CF0?style=flat-square">
+  <br>
+  <img alt="30 document parsers and OCR models" src="https://img.shields.io/badge/parsers_%26_OCR-30-C060C0?style=flat-square">
+  <img alt="19 guardrail models" src="https://img.shields.io/badge/guardrails-19-E0668F?style=flat-square">
+  <img alt="23 vision, PII and router models" src="https://img.shields.io/badge/vision%2C_PII_%26_routers-23-F27265?style=flat-square">
+  <img alt="93 GPUs and accelerators" src="https://img.shields.io/badge/GPUs_%26_accelerators-93-FF7E51?style=flat-square">
 </p>
 
+<a href="https://headroom-lemon.vercel.app"><img alt="Try it live: no signup" src="https://img.shields.io/badge/Try_it_live-no_signup-2F6BFF?style=for-the-badge&logo=vercel&logoColor=white" height="32"></a>
 <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fzakaria-hamane%2FHEADROOM&project-name=headroom&repository-name=headroom&env=BETTER_AUTH_SECRET&envDescription=A%20random%20string%20of%2032%2B%20characters%20that%20signs%20sessions&envLink=https%3A%2F%2Fgithub.com%2Fzakaria-hamane%2FHEADROOM%23environment-variables&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%2C%22protocol%22%3A%22storage%22%7D%5D"><img src="https://vercel.com/button" alt="Deploy with Vercel"></a>
 
 <p>
+  <a href="#the-whole-stack-on-one-gpu-budget">The whole stack</a> ·
   <a href="#see-it">See it</a> ·
   <a href="#features">Features</a> ·
   <a href="#a-real-answer">A real answer</a> ·
@@ -47,14 +54,45 @@
 
 ---
 
-**Does it fit? Is it fast enough? What does it cost?** Those are the three questions behind every GPU purchase for an LLM, and spreadsheets answer them badly. Headroom answers all three as you type: pick a model, a precision, a GPU and a workload, and see exactly where every gigabyte of VRAM goes, how fast answers stream to each user, how long the first word takes under a burst, how many GPUs you actually need and what a million tokens will cost you.
+**An LLM never ships alone.** A real assistant transcribes speech, checks the request, embeds the question, searches and reranks, parses the documents it answers from, generates, and reads the answer back. Every one of those models takes memory and compute from the same GPUs, yet most sizing tools only count the LLM.
 
-It works for **inference and fine-tuning**, single servers and **TP × PP × DP clusters**, RAG and agent stacks that share the GPU, and offloading to RAM or NVMe. Make an account to save plans, share them with a link and compare them side by side.
+**Headroom sizes the whole stack.** Pick an LLM, add the models around it from a catalog of 175 (or start from a preset like *Voice agent* or *Full RAG + voice*), choose a GPU and a workload, and it answers three questions as you type:
+
+- **Does it fit?** Every gigabyte of VRAM: LLM weights, KV cache, runtime, and each embedder, reranker, parser, speech and guardrail model, on the GPU or moved to CPU + RAM.
+- **Is it fast enough?** Tokens per second per user against reading speed, real-time factors for speech, and the time from question to first word, with embedding, vector search, reranking and guardrail checks included.
+- **What does it cost?** How many GPUs, $ per hour and per million tokens, energy, and API costs for hosted parsers and rerankers.
+
+It works for **inference and fine-tuning**, single servers and **TP × PP × DP clusters**, and offloading to RAM or NVMe. Make an account to save plans, share them with a link and compare them side by side.
 
 > [!TIP]
 > No account is needed to plan. Drafts stay in your browser, and signing up saves them to your account.
 
 If Headroom saves you from buying the wrong GPUs, **a ⭐ on this repo helps other people find it.**
+
+## The whole stack, on one GPU budget
+
+<img src="docs/stack-diagram.svg" alt="One question through an agentic RAG stack on 4× H100: Whisper speech-to-text, BGE-M3 embedder, vector search, BGE reranker, Llama 3.3 70B and SILMA text-to-speech, with Granite-Docling parsing and indexing behind them. Question to first word 1.56 s; everything fits in 170.5 of 272.0 GB usable." width="100%">
+
+Each model in the stack runs on the GPU with the LLM, on CPU + RAM, or as a hosted API, and Headroom sizes it there:
+
+| In the stack | In the catalog | What Headroom computes |
+| --- | --- | --- |
+| **LLM** | 138 models: Llama, Qwen, DeepSeek, gpt-oss, Gemma and more | Weights and KV cache per user, tokens/s per user, first word under a burst, GPU count, $ per 1M tokens |
+| **Embedders** | 40, e.g. BGE-M3 | Memory, query latency, indexing speed in chunks/s |
+| **Rerankers** | 22, e.g. BGE Reranker v2 M3, hosted APIs | Memory, time to rerank the top passages, pairs/s, or API cost per 1,000 questions |
+| **Speech-to-text** | 25, e.g. Whisper large-v3 and turbo, Distil-Whisper | Memory, × real time, share of a GPU for your live streams, time to transcribe an hour |
+| **Text-to-speech** | 16, e.g. Kokoro-82M, XTTS-v2, F5-TTS | Memory, × real time, share of a GPU for your live voices |
+| **Parsers & OCR** | 30, e.g. Docling, Granite-Docling, Marker | Pages per hour and time for your document count, or API cost per 1,000 pages |
+| **Guardrails** | 19, e.g. Llama Guard 3 and 4, Prompt Guard 2 | Memory, time per check, checks per question |
+| **Vision, PII, routers** | 23, e.g. Qwen2.5-VL, GLiNER, Presidio, Arch-Router | Memory, time per call |
+
+Then it adds everything up: total GPU memory (and RAM for models you move to the CPU), the stack's share of GPU compute at your question rate, and **question → first word = embedding + vector search + reranking + guardrail + the LLM's first token**.
+
+<p align="center">
+  <img src="docs/stack.jpg" alt="A voice agent stack in Headroom: Whisper large-v3-turbo, Kokoro-82M and BGE-M3 next to Qwen3 8B on 2× L4, 85% of usable VRAM" width="100%">
+  <br>
+  <sub><b>A voice agent, sized as a whole.</b> Whisper, Kokoro and BGE-M3 share two L4s with Qwen3 8B. Each model shows its memory and throughput, and the result adds them to the LLM's budget.</sub>
+</p>
 
 ## See it
 
@@ -108,7 +146,8 @@ If Headroom saves you from buying the wrong GPUs, **a ⭐ on this repo helps oth
     <td width="33%" valign="top">
       <h4>Size it</h4>
       <ul>
-        <li><b>Planner</b>: model, RAG/agent stack, precision and runtime, hardware, workload, offloading and cost settings</li>
+        <li><b>The whole stack</b>: the LLM plus 175 models in 9 types (embedders, rerankers, parsers and OCR, speech-to-text, text-to-speech, guardrails, vision, PII, routers), each on the GPU, on CPU + RAM, or as an API</li>
+        <li><b>Presets</b> to start from: Starter RAG, Full RAG + voice, Document-heavy, Voice agent, Arabic voice, With guardrails, Cloud parsing + rerank</li>
         <li><b>Auto GPU count</b> on a single server, or clusters with tensor, pipeline and data parallelism</li>
         <li><b>Offloading</b> of layers or KV cache to RAM or NVMe, run on the CPU or copied over PCIe</li>
         <li><b>Fine-tuning</b>: full, LoRA and QLoRA, optimizers, ZeRO-1/2/3, checkpointing, training time and cost</li>
@@ -117,8 +156,9 @@ If Headroom saves you from buying the wrong GPUs, **a ⭐ on this repo helps oth
     <td width="33%" valign="top">
       <h4>Understand it</h4>
       <ul>
-        <li><b>Memory breakdown</b>: weights, KV cache, runtime and CUDA graphs, activations, companions, free and kept headroom</li>
-        <li><b>Speed per user</b> against human reading speed, <b>first word</b> under a burst, total throughput, compute used</li>
+        <li><b>Memory breakdown</b>: weights, KV cache, runtime and CUDA graphs, activations, every RAG and agent model, free and kept headroom</li>
+        <li><b>Speed per user</b> against human reading speed, <b>question → first word</b> with retrieval included, first word under a burst, total throughput</li>
+        <li><b>Throughput per model</b>: × real time and GPU share for live speech, pages/hour for parsers, chunks/s for indexing, and the stack's share of GPU compute</li>
         <li><b>Cost and energy</b>, server CPU and RAM, and plain-language warnings</li>
         <li><b>How it is calculated</b>: every formula with your numbers plugged in</li>
       </ul>
@@ -138,6 +178,24 @@ If Headroom saves you from buying the wrong GPUs, **a ⭐ on this repo helps oth
 Plus a searchable **catalog** with a page per model (weights per format, KV cache per user, smallest setup on popular GPUs), **templates** for common setups, light and dark themes, keyboard support and a mobile layout.
 
 ## A real answer
+
+### A voice agent on two L4s
+
+The *Voice agent* template: **Qwen3 8B** in FP8 for the answers, **Whisper large-v3-turbo** for speech-to-text, **Kokoro-82M** for text-to-speech and **BGE-M3** for retrieval, with **25 users** and an 8K-token context. Headroom picks **2× L4 24GB**.
+
+| Question | Headroom's answer |
+| --- | --- |
+| Does it fit? | **Yes, at 85%** of usable VRAM: 34.6 of 40.8 GB, on the 2 GPUs it picked |
+| Where does the memory go? | LLM weights 9.95 GB, KV cache 14.1 GB, runtime 4.30 GB, activations 0.34 GB, and **5.98 GB for the speech and retrieval models**: Whisper 3.01 GB, Kokoro 1.21 GB, BGE-M3 1.77 GB |
+| Can speech keep up? | Whisper runs at **× 78 real time**: 4 live streams use about 5% of a GPU, and an hour of audio takes about 46 s. Kokoro runs at about × 60 real time: 4 live voices use about 7%. |
+| Question → first word | embedding 8.88 ms + vector search 15.0 ms + LLM 1.46 s = **1.49 s** |
+| Is it fast enough? | **12.2 tokens/s per user**, about twice as fast as people read |
+| How busy is the stack? | At 1 question per user per minute, the speech and retrieval models use about **5.9% of the GPUs' compute** |
+| What does it cost? | **$1.46 per hour**, **$2.21 per 1M output tokens** at typical cloud rates |
+
+The speech and retrieval models take 6 GB, about 15% of the usable memory. Leave them out of the plan and this setup looks roomier than it is.
+
+### The KV cache surprise: Llama 3.3 70B on 4× H100
 
 One of the saved plans in the screenshots: a support assistant on **Llama 3.3 70B** in FP8, **64 people chatting at once** with a 16K-token context, on **4× H100 SXM 80GB**.
 
@@ -161,7 +219,9 @@ so 64 users need 160 GB of KV cache, more than twice the weights. Generation is 
 
 ## Quick start
 
-Requires Node.js 22.9 or newer.
+Nothing to install: **[try it live at headroom-lemon.vercel.app](https://headroom-lemon.vercel.app)**, no signup needed.
+
+To run it yourself, you need Node.js 22.9 or newer.
 
 ```bash
 git clone https://github.com/zakaria-hamane/HEADROOM.git
